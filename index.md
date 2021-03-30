@@ -1,4 +1,5 @@
 # <center>국민대학교 캡스톤 디자인 28조</center>
+
 ---
 
 ## 프로젝트 소개
@@ -20,8 +21,16 @@
 
 	자신이 직접 만든 AI를 웹캠으로 인식 또는 이미지를 홈페이지에 로드하여 AI가 작동하는 지 경험한다.
 
+## Abstract
+
+This project is about making a new AI Web service that people can easily train their own data and test model. The Point is that this service don't need any GPU power to make the training fast and just use web browser power. Our main targets are people who don't know about computer science well or middle to high school students. And our goal is giving information about overall, concise process of building a Object Detecting AI model.
 
 
+## 소개 영상
+
+## 팀 소개
+
+## 사용법
 
 
 
