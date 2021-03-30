@@ -1,0 +1,1 @@
+[{"image": "duck1.jpg", "annotations": [{"label": "duck", "coordinates": {"x": 125.00467289719627, "y": 99.97196261682244, "width": 184.0, "height": 159.0}}]}, {"image": "duck2.jpg", "annotations": []}]
