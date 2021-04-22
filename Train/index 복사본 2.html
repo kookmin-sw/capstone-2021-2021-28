@@ -11,10 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
 <body>
-  <div style="position: relative" class="margin">
-    <img id="inputImg" src="http://127.0.0.1:3000/duck2.jpg" crossorigin='anonymous' style="max-width: 800px;"/>
-    <canvas id="overlay" />
-  </div>
+
   <script>
     tf = yolo.tf
 
@@ -35,10 +32,10 @@
     window.saveEveryNthSample = 500
 
     // image sizes at which each image is backward passed
-    window.trainSizes = [160,224]
+    window.trainSizes = [160, 224]
 
     // finish training after 'maxEpoch' epochs
-    window.maxEpoch = 200
+    window.maxEpoch = 501
 
     const lossReporter = createLossReporter(trainSizes)
 
@@ -105,10 +102,10 @@
 
       for (let epoch = startEpoch; epoch < window.maxEpoch; epoch++) {
 
-        // if (epoch !== startEpoch && epoch % 100 == 0) {
-        //   saveWeights(window.net, `voc_epoch${epoch - 1}.weights`)
-        //   saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `voc_losses_epoch${epoch - 1}.json`)
-        // }
+        if (epoch !== startEpoch && epoch % 100 == 0) {
+          saveWeights(window.net, `voc_epoch${epoch - 1}.weights`)
+          saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `voc_losses_epoch${epoch - 1}.json`)
+        }
         lossReporter.resetLosses()
 
         const shuffledInputs = yolo.shuffleArray(window.boxJsonUris)
@@ -154,28 +151,8 @@
             await tf.nextFrame()
           }
         }
-        
       }
       console.log("train Ended")
-      const inputImgEl = $('#inputImg').get(0)
-            console.log("ImgElement",inputImgEl)
-            const { width, height } = inputImgEl
-            const canvas = $('#overlay').get(0)
-            canvas.width = width
-            canvas.height = height
-
-            console.log(canvas.width)
-            console.log(canvas.height)
-            
-            const forwardParams = {
-              inputSize: 224,
-              scoreThreshold: 0.4
-            }
-
-            const detections = await net.detect(inputImgEl, forwardParams)
-            console.log(detections)
-            yolo.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
-
     }
     train();
   </script>
