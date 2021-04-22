@@ -1,0 +1,165 @@
+<html>
+  <head>
+    <!-- Load the latest version of TensorFlow.js -->
+    <!--script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.6.0/dist/tf.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <div id="console"></div>
+    <!-- Add an image that we will use to test -->
+    <!-- Load index.js after the content of the page -->
+    <!-- script src="tiny-yolov2.min.js"></script> -->
+    <script src="tiny-yolov2.js"></script>
+    <script src="FileSaver.js"></script>
+    <script src="createLossReporter.js"></script>
+    <!--script src="TinyYolov2Trainable.js"></script>-->
+    
+    <script>
+        
+        function shuffleArray(a) {
+            var array = a.slice();
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var x = array[i];
+                array[i] = array[j];
+                array[j] = x;
+            }
+            return array;
+        }
+
+        async function app(){
+            const config = {
+              // use separable convolutions over regular convolutions
+              "withSeparableConvs": true,
+              // iou threshold for nonMaxSuppression
+              "iouThreshold": 0.4,
+              // instructions for how to determine anchors is given below
+              "anchors": [
+                { "x": 1.08, "y": 1.19 },
+                { "x": 3.42, "y": 4.41 },
+                { "x": 6.63, "y": 11.38 },
+                { "x": 9.42, "y": 5.11 },
+                { "x": 16.62, "y": 10.52 }
+              ],
+              // whatever kind of objects you are training your object detector on
+              "classes": ["duck"],
+              // optionally you can compute the mean RGB value for your dataset and
+              // pass it in the config for performing mean value subtraction on your
+              // input images
+              
+              // scale factors for each loss term (only required for training),
+              // explained below
+              "objectScale": 5,
+              "noObjectScale": 1,
+              "coordScale": 1,
+              "classScale": 1
+            }
+
+
+            const learningRate = 0.001
+            const optimizer = yolo.tf.train.adam(learningRate, 0.9, 0.999, 1e-8)
+            
+
+            const net = new yolo.TinyYolov2Trainable(config, optimizer)
+
+            const checkpointUri = 'http://127.0.0.1:3000/Train/initial_glorot_1_classes.weights'
+            const weights = new Float32Array(await (await fetch(checkpointUri)).arrayBuffer())
+            await net.load(weights)
+
+
+
+            // const boxJsonUris = ['http://127.0.0.1:3000/Train/Image/banana1.json',
+            //                      'http://127.0.0.1:3000/Train/Image/banana2.json',
+            //                      'http://127.0.0.1:3000/Train/Image/banana3.json',
+            //                      'http://127.0.0.1:3000/Train/Image/banana4.json',
+            //                      'http://127.0.0.1:3000/Train/Image/banana5.json',
+            //                      'http://127.0.0.1:3000/Train/Image/coca1.json',
+            //                      'http://127.0.0.1:3000/Train/Image/coca2.json',
+            //                      'http://127.0.0.1:3000/Train/Image/coca3.json',
+            //                      'http://127.0.0.1:3000/Train/Image/coca4.json',
+            //                      'http://127.0.0.1:3000/Train/Image/coca5.json',
+            //                      'http://127.0.0.1:3000/Train/Image/emart1.json',
+            //                      'http://127.0.0.1:3000/Train/Image/emart2.json',
+            //                      'http://127.0.0.1:3000/Train/Image/emart3.json',
+            //                      'http://127.0.0.1:3000/Train/Image/emart4.json',
+            //                      'http://127.0.0.1:3000/Train/Image/emart5.json',
+            //                      'http://127.0.0.1:3000/Train/Image/pepsi1.json',
+            //                      'http://127.0.0.1:3000/Train/Image/pepsi2.json',
+            //                      'http://127.0.0.1:3000/Train/Image/pepsi3.json',
+            //                      'http://127.0.0.1:3000/Train/Image/pepsi4.json',
+            //                      'http://127.0.0.1:3000/Train/Image/pepsi5.json']
+
+            const boxJsonUris = ['http://127.0.0.1:3000/Train/Image/duck1.json',
+            'http://127.0.0.1:3000/Train/Image/duck2.json']
+                                 
+                                 
+            console.log(JSON.stringify(boxJsonUris))
+            
+            const trainingSizes = [224]
+            const lossReporter = createLossReporter(trainingSizes)
+            const startEpoch = 0
+            const maxEpoch = 300
+            var saveEveryNthSample = 500
+            
+            
+            function saveWeights(net, filename = 'train_tmp') {
+              saveAs(new Blob([net.serializeParams()]), filename)
+            }
+            for (let epoch = startEpoch; epoch < maxEpoch; epoch++) {
+              console.log('epoch : ', epoch)
+              const shuffledInputs = shuffleArray(boxJsonUris)
+              lossReporter.resetLosses()
+              for (let dataIdx = 0; dataIdx < shuffledInputs.length; dataIdx++) {
+                const boxJsonUri = shuffledInputs[dataIdx]
+                const imgUri = boxJsonUri.replace('.json', '.JPG')
+                const groundTruth = await (await fetch(boxJsonUri)).json()
+                const img = await yolo.bufferToImage(await (await fetch(imgUri)).blob())
+                for (let sizeIdx = 0; sizeIdx < trainingSizes.length; sizeIdx++) {
+
+                  const inputSize = trainingSizes[sizeIdx]
+                  const backwardOptions = {
+
+                    minBoxSize: 32,
+
+                    reportLosses: function({ losses, numBoxes, inputSize }) {
+                      console.log(`ground truth boxes: ${numBoxes} (${inputSize})`)
+                      console.log(`noObjectLoss[${dataIdx}]: ${yolo.round(losses.noObjectLoss, 4)}`)
+                      console.log(`objectLoss[${dataIdx}]: ${yolo.round(losses.objectLoss, 4)}`)
+                      console.log(`coordLoss[${dataIdx}]: ${yolo.round(losses.coordLoss, 4)}`)
+                      console.log(`classLoss[${dataIdx}]: ${yolo.round(losses.classLoss, 4)}`)
+                      console.log(`totalLoss[${dataIdx}]: ${yolo.round(losses.totalLoss, 4)}`)
+                      lossReporter.reportLosses({ losses, numBoxes, inputSize })
+                    }
+                  }
+
+                  const loss = await net.backward(img, groundTruth, inputSize, backwardOptions)
+                  
+   
+                  if (loss) {
+    
+                    loss.dispose()
+                  } else {
+                    console.log('no boxes remaining after filtering')
+                  }
+
+                }
+              }
+              if (epoch !== startEpoch && epoch % 50 == 0) {
+                saveWeights(net, `custom_epoch${epoch - 1}.weights`)
+                saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `custom_losses_epoch${epoch - 1}.json`)
+              }
+            }
+            console.log("train Ended")
+        }
+    
+        app();
+
+        
+        
+    </script>
+    
+    
+    
+    
+  </body>
+</html>
