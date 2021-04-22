@@ -46,7 +46,7 @@
               // optionally you can compute the mean RGB value for your dataset and
               // pass it in the config for performing mean value subtraction on your
               // input images
-              
+              "meanRgb": [100,100,100],
               // scale factors for each loss term (only required for training),
               // explained below
               "objectScale": 5,
@@ -55,72 +55,77 @@
               "classScale": 1
             }
 
-
+            // simply use any of the optimizer provided by tfjs (I usually use adam)
             const learningRate = 0.001
             const optimizer = yolo.tf.train.adam(learningRate, 0.9, 0.999, 1e-8)
             
-
+            // initialize a trainable TinyYolov2
             const net = new yolo.TinyYolov2Trainable(config, optimizer)
-
-            const checkpointUri = 'http://127.0.0.1:3000/Train/initial_glorot_1_classes.weights'
+            
+            // load initial weights or the weights of any checkpoint
+            const checkpointUri = 'http://127.0.0.1:3000/initial_glorot_1_classes.weights'
             const weights = new Float32Array(await (await fetch(checkpointUri)).arrayBuffer())
             await net.load(weights)
 
 
-
-            // const boxJsonUris = ['http://127.0.0.1:3000/Train/Image/banana1.json',
-            //                      'http://127.0.0.1:3000/Train/Image/banana2.json',
-            //                      'http://127.0.0.1:3000/Train/Image/banana3.json',
-            //                      'http://127.0.0.1:3000/Train/Image/banana4.json',
-            //                      'http://127.0.0.1:3000/Train/Image/banana5.json',
-            //                      'http://127.0.0.1:3000/Train/Image/coca1.json',
-            //                      'http://127.0.0.1:3000/Train/Image/coca2.json',
-            //                      'http://127.0.0.1:3000/Train/Image/coca3.json',
-            //                      'http://127.0.0.1:3000/Train/Image/coca4.json',
-            //                      'http://127.0.0.1:3000/Train/Image/coca5.json',
-            //                      'http://127.0.0.1:3000/Train/Image/emart1.json',
-            //                      'http://127.0.0.1:3000/Train/Image/emart2.json',
-            //                      'http://127.0.0.1:3000/Train/Image/emart3.json',
-            //                      'http://127.0.0.1:3000/Train/Image/emart4.json',
-            //                      'http://127.0.0.1:3000/Train/Image/emart5.json',
-            //                      'http://127.0.0.1:3000/Train/Image/pepsi1.json',
-            //                      'http://127.0.0.1:3000/Train/Image/pepsi2.json',
-            //                      'http://127.0.0.1:3000/Train/Image/pepsi3.json',
-            //                      'http://127.0.0.1:3000/Train/Image/pepsi4.json',
-            //                      'http://127.0.0.1:3000/Train/Image/pepsi5.json']
-
-            const boxJsonUris = ['http://127.0.0.1:3000/Train/Image/duck1.json',
-            'http://127.0.0.1:3000/Train/Image/duck2.json']
-                                 
-                                 
+            
+            
+            //const boxJsonUris = (await fetch('http://127.0.0.1:3000/BoxJsonUris')).json()
+            const boxJsonUris = ['http://127.0.0.1:3000/duck1.json','http://127.0.0.1:3000/duck2.json']
             console.log(JSON.stringify(boxJsonUris))
             
-            const trainingSizes = [224]
+            const trainingSizes = [160, 224, 320, 416]
             const lossReporter = createLossReporter(trainingSizes)
             const startEpoch = 0
-            const maxEpoch = 300
+            const maxEpoch = 50
             var saveEveryNthSample = 500
             
             
             function saveWeights(net, filename = 'train_tmp') {
               saveAs(new Blob([net.serializeParams()]), filename)
             }
+            function onBackwardComplete(epoch, dataIdx, inputSize) {
+              const idx = dataIdx + 1
+
+              if (inputSize === trainingSizes[trainingSizes.length - 1] && (idx % saveEveryNthSample) === 0) {
+                saveWeights(net, `voc_e${epoch}_${idx}.weights`)
+                saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `voc_e${epoch}_${idx}.json`)
+              }
+            }
             for (let epoch = startEpoch; epoch < maxEpoch; epoch++) {
               console.log('epoch : ', epoch)
+              // always shuffle your inputs for each epoch
               const shuffledInputs = shuffleArray(boxJsonUris)
+
+              //if (epoch !== startEpoch) {
+              //  saveWeights(net, `custom_epoch${epoch - 1}.weights`)
+              //  saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `custom_losses_epoch${epoch - 1}.json`)
+              //}
+
               lossReporter.resetLosses()
+
+              // loop through shuffled inputs
               for (let dataIdx = 0; dataIdx < shuffledInputs.length; dataIdx++) {
+
+                // fetch image and corresponding ground truth bounding boxes
                 const boxJsonUri = shuffledInputs[dataIdx]
-                const imgUri = boxJsonUri.replace('.json', '.JPG')
+                //console.log('Debug5 : ',boxJsonUri)
+                const imgUri = boxJsonUri.replace('.json', '.jpg')
+                //console.log('Debug6 : ',imgUri)
                 const groundTruth = await (await fetch(boxJsonUri)).json()
+                //console.log('Debug7 : ',groundTruth)
                 const img = await yolo.bufferToImage(await (await fetch(imgUri)).blob())
+                //console.log('Debug8 : ',img)
+                // rescale and backward pass input image for each input size
                 for (let sizeIdx = 0; sizeIdx < trainingSizes.length; sizeIdx++) {
 
                   const inputSize = trainingSizes[sizeIdx]
+                  //console.log("debug10 : ", inputSize, "    ", sizeIdx)
+
                   const backwardOptions = {
-
+                    // filter boxes with width < 32 or height < 32
                     minBoxSize: 32,
-
+                    // log computed losses
                     reportLosses: function({ losses, numBoxes, inputSize }) {
                       console.log(`ground truth boxes: ${numBoxes} (${inputSize})`)
                       console.log(`noObjectLoss[${dataIdx}]: ${yolo.round(losses.noObjectLoss, 4)}`)
@@ -131,12 +136,13 @@
                       lossReporter.reportLosses({ losses, numBoxes, inputSize })
                     }
                   }
+                  //console.log("debug11 : ", backwardOptions)
 
                   const loss = await net.backward(img, groundTruth, inputSize, backwardOptions)
                   
-   
+                  //onBackwardComplete(epoch, dataIdx, inputSize)
                   if (loss) {
-    
+                    // don't forget to free the loss tensor
                     loss.dispose()
                   } else {
                     console.log('no boxes remaining after filtering')
@@ -144,7 +150,7 @@
 
                 }
               }
-              if (epoch !== startEpoch && epoch % 50 == 0) {
+              if (epoch !== startEpoch && epoch %10 == 0) {
                 saveWeights(net, `custom_epoch${epoch - 1}.weights`)
                 saveAs(new Blob([JSON.stringify(lossReporter.summary())]), `custom_losses_epoch${epoch - 1}.json`)
               }
