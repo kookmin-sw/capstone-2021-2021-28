@@ -33,7 +33,7 @@
 ###
 	이름 : 임주완
 	학번 : 20152538
-	역할 : 팀장, 관련 기술 조사, 문서작업, Object detection 기능 구현, front-end
+	역할 : 관련 기술 조사, 문서작업, Object detection 기능 구현, front-end, 서버 구축
 	이메일 : dlacksdn352@gmail.com
 
 ### 4. 사용법
