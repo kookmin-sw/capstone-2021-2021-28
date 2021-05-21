@@ -3,7 +3,7 @@
 
 <img width="372" alt="Logo" src="https://user-images.githubusercontent.com/57613321/119185430-b266ee80-bab1-11eb-8e3c-83dd567508d5.png">
 
-<h2 align="center">capstone 28조 (20152524 이윤재, 20152538 임주완)
+<h2 align="center">capstone 28조 (20152524 이윤재, 20152538 임주완)</h2>
 
 - 프로젝트 소개
   - 프로젝트 설치방법 및 데모, 사용방법, 프리뷰등을 readme.md에 작성.
