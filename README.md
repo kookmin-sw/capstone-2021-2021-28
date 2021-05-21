@@ -11,7 +11,7 @@
   <li>프로젝트 소개</li>
   <li>팀 소개</li>
   <li>프로젝트 영상</li>
-  <li></li>
+  <li>사용법</li>
 </ol>
 
 **팀페이지 주소** -> https://kookmin-sw.github.io/capstone-2021-28
