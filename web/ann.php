@@ -18,6 +18,7 @@
     for(let i=0; i<images.length; ++i){
         images_obj[images[i]] = [];
     }
+
     function start_ann(img){
         $('.image_frame').remove();
         var annotator = new BBoxAnnotator({
@@ -58,15 +59,14 @@
                     data: JSON.stringify(output),
                     filename: images[i]
                 },
-                type:"post",
-                complete:function(){
-                    alert("ok");
-                }
+                type:"post"
             });
         }
+        alert("Annotation이 저장되었습니다.")
     }
 
     $(document).ready(function() {
+        document.getElementById("class_num").innerHTML = "Class "+"<?php echo $current_page;?>";
     });
 </script>
 <body>
@@ -74,11 +74,13 @@
     <div class="row w-100 mb-5">
         <div class="col-md-12">
             <div id="preview" style="overflow: scroll">
+                <h2 id="class_num"></h2>
+                <br /><h3>Preview</h3><br />
                 <?php
                     $k = "images_".strval($current_page);
                     $images = explode(",", $_POST[$k]);
                     for($i=0; $i<count($images); ++$i){
-                        echo "<img src='images/".$images[$i]."' id='".$images[$i]."' height='100px' width='100px' onclick='start_ann(this)'>";
+                        echo "<img src='images/".$images[$i]."' id='".$images[$i]."' height='100px' width='100px' style='border: 4px solid transparent; border-radius: 10px;' onclick='start_ann(this)'>";
                     }
                 ?>
             </div>
@@ -86,7 +88,7 @@
     </div>
     <div class="row w-100 mb-5" style="height: 480px;">
         <div class="col-md-12">
-<!--            <img id="main" width="640" height="480" style="border: 3px solid black;"></img>-->
+            <h3>Annotating</h3><br />
             <div id="bbox_annotator"></div>
         </div>
     </div>
@@ -102,15 +104,68 @@
                     echo "<input type='hidden' id='".$k."' name='".$k."' value='".$_POST[$k]."'>";
                 }
                 ?>
+                <a class="btn btn-warning" data-bs-toggle="modal" href="#exampleModalToggle" role="button">도움말</a>
+                &nbsp;
                 <button class="btn btn-info" type="button" onclick="save_json()">저장</button>
+                &nbsp;
                 <button class="btn btn-primary" type="submit">Next</button>
                 <?php
                 echo "</form>";
                 ?>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalToggleLabel">Annotating</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <image src="direction/ann1.png" style="width:100%; height:100%; border:none"></image>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" data-bs-dismiss="modal">다음으로</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalToggleLabel2">Annotating</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <image src="direction/ann2.png" style="width:100%; height:100%; border:none"></image>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">이전으로</button>
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle3" data-bs-toggle="modal" data-bs-dismiss="modal">다음으로</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModalToggle3" aria-hidden="true" aria-labelledby="exampleModalToggleLabel3" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalToggleLabel3">Annotating</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <image src="direction/ann3.png" style="width:100%; height:100%; border:none"></image>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" data-bs-dismiss="modal">이전으로</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 </body>
 </html>
-
