@@ -16,12 +16,15 @@
 <?php include 'header.php'?>
 <script>
     $(document).ready(function() { // 페이지 로딩 기다림
+
         let images = []; // 이미지 배열
         const webcamElement = document.getElementById('webcam'); // 웹캠 활성화
         const canvasElement = document.getElementById('canvas'); // 캔버스 활성화
         // const snapSoundElement = document.getElementById('snapSound');
         // const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
         const webcam = new Webcam(webcamElement, 'user', canvasElement); // 웹캠 객체 생성
+        document.getElementById("class_num").innerHTML = "Class "+"<?php echo $current_page;?>";
+
         document.getElementById('start').onclick = function() { // 웹캠 시작
             webcam.start()
                 .then(result =>{
@@ -41,6 +44,7 @@
             new_image.src = picture;
             new_image.setAttribute('height', '100px'); // 프리뷰 이미지 특성 설정
             new_image.setAttribute('width', '100px');
+            new_image.setAttribute('style', 'border: 4px solid transparent; border-radius: 10px;');
             document.getElementById('preview').appendChild(new_image); // 프리뷰 이미지 배열 동적 추가
         };
         document.getElementById('save').onclick = function() {
@@ -57,23 +61,25 @@
                         base64: images[i],
                         filename: filename
                     },
-                    type:"post", // 포스트 방식으로 upload_image.php로 passing
-                    complete:function(){
-                        alert("ok"); //정상적으로 완료되었다면 알림 설정.
-                    }
+                    type:"post"// 포스트 방식으로 upload_image.php로 passing
+
                 });
                 image_filenames.push(filename);
             }
+            alert("저장되었습니다.");
             let key = 'images_'+'<?php echo $current_page?>';
             document.getElementById(key).value = image_filenames.toString();
         };
     });
 </script>
 <body>
-<div class="container">
+<div class="container" style="height:auto; width:auto;">
     <div class="row w-100 mb-5">
         <div class="col-md-12">
+            <br />
+            <h2 id="class_num"></h2>
             <div class="d-grid gap-2 d-md-block">
+                <br />
                 <button class="btn btn-success" type="button" id="start">웹캠 시작</button>
                 <button class="btn btn-danger" type="button" id="stop">웹캠 끄기</button>
                 <button class="btn btn-primary" type="button" id="snapshot">캡쳐</button>
@@ -85,7 +91,6 @@
         <div class="col-md-6">
             <video id="webcam" autoplay playsinline width="640" height="480" style="border: 3px solid black;"></video>
             <canvas id="canvas" class="d-none"></canvas>
-            <!--            <audio id="snapSound" src="audio/snap.wav" preload = "auto"></audio>-->
         </div>
         <div class="col-md-6">
             <div id="preview" style="overflow: scroll">
@@ -105,14 +110,49 @@
                         echo "<input type='hidden' id='".$k."' name='".$k."' value='".$_POST[$k]."'>";
                     }
                 ?>
+                <a class="btn btn-warning" data-bs-toggle="modal" href="#exampleModalToggle" role="button">도움말</a>
+                &nbsp;
                 <button class="btn btn-primary" type="submit">Next</button>
                 <?php
                     echo "</form>";
                 ?>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalToggleLabel">Get Data</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <image src="direction/capture1.png" style="width:100%; height:100%; border:none"></image>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" data-bs-dismiss="modal">다음으로</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalToggleLabel2">Get Data</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <image src="direction/capture2.png" style="width:100%; height:100%; border:none"></image>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">이전으로</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 </body>
 </html>
-
