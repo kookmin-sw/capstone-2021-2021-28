@@ -12,26 +12,41 @@
 <?php include 'header.php'?>
 <script>
     function submit(){
-        let total_classses = parseInt('<?php echo $total_classes; ?>');
+        let total_classes = parseInt('<?php echo $total_classes; ?>');
         let labels = [];
+        let images = [];
         let labels_string = "";
+        let images_string = "";
         let form = document.createElement("form");
         var element1 = document.createElement("input");
         var element2 = document.createElement("input");
+        var element3 = document.createElement("input");
         form.method = "POST";
         form.action = "result.php";
-        for(let i=0; i<total_classses; ++i){
+        for(let i=0; i<total_classes; ++i){
             let k = 'label_'+(i+1).toString();
             labels.push(document.getElementById(k).value);
         }
+
+        for(let i=0; i<total_classes; ++i){
+            let k = 'images_'+(i+1).toString();
+            images.push('<?php echo $images.$_POST[$k]; ?>');
+        }
+        
         labels_string = labels.join(",");
-        element1.value=total_classses;
-        element1.name="total_classses";
+        images_string = images.join(",");
+
+        element1.value=total_classes;
+        element1.name="total_classes";
         form.appendChild(element1);
 
         element2.value=labels_string;
         element2.name="labels";
         form.appendChild(element2);
+
+        element3.value=images_string;
+        element3.name="images";
+        form.appendChild(element3);
 
         document.body.appendChild(form);
         form.submit();
@@ -76,11 +91,11 @@
         let images_string = '<?php echo $images; ?>';
         let images = images_string.split(",");
         let json_uris = [];
-        let total_classses = parseInt('<?php echo $total_classes; ?>');
+        let total_classes = parseInt('<?php echo $total_classes; ?>');
         let model_weights_name = "initial_glorot_1_classes.weights";
         let labels = [];
         let data = [];
-        for (let i=0; i<total_classses; ++i){
+        for (let i=0; i<total_classes; ++i){
             let k = "label_"+(i+1).toString();
             if(document.getElementById(k).value){
                 labels.push(document.getElementById(k).value);
@@ -93,11 +108,11 @@
                 json_uris.push("http://localhost/images/"+images[i].replace("jpg", "json"));
             }
         }
-        if(total_classses == 2){
+        if(total_classes == 2){
             model_weights_name = "initial_glorot_2_classes.weights";
-        }else if(total_classses == 3){
+        }else if(total_classes == 3){
             model_weights_name = "initial_glorot_3_classes.weights";
-        }else if(total_classses == 4){
+        }else if(total_classes == 4){
             model_weights_name = "initial_glorot_4_classes.weights";
         }
 
