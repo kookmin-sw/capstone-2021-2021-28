@@ -1,6 +1,7 @@
 <?php
     $total_classes = $_POST['total_classes'];
     $labels_string = $_POST['labels'];
+    $images_string = $_POST['images'];
     $action = 'train.php';
 ?>
 <!DOCTYPE html>
@@ -8,14 +9,14 @@
 <?php include 'header.php'?>
 <script>
     $(document).ready(function() {
-        let images = [];
         const webcamElement = document.getElementById('webcam');
         const canvasElement = document.getElementById('canvas');
         const webcam = new Webcam(webcamElement, 'user', canvasElement);
         let total_classses = parseInt('<?php echo $total_classes; ?>');
         let labels_string = '<?php echo $labels_string; ?>'
         let labels = labels_string.split(",");
-        let images_string = '<?php echo $images; ?>';
+        let images_string = '<?php echo $images_string; ?>'
+        let images = images_string.split(",");
         document.getElementById('start').onclick = function() { // weight 파일을 업로드하고 'start'버튼을 눌러 테스트 시작
             webcam.start()
                 .then(result =>{
