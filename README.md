@@ -47,6 +47,7 @@ C. 직접 만든 모델을 테스트
 	이메일 : dlacksdn352@gmail.com
 
 ### 4. 프로젝트 영상
+[시연동영상](https://youtu.be/IG6UuORXLVk)
 
 ### 5. 사용법
 
