@@ -51,8 +51,6 @@ C. 직접 만든 모델을 테스트
 
 ### 5. 사용법
 
-소스코드제출시 설치법이나 사용법을 작성하세요.
+사용자 : (https://juwancapstone.com) 
 
-### 6. 기타
-
-추가적인 내용은 자유롭게 작성하세요.
+운영자 : https://github.com/kookmin-sw/capstone-2021-28/blob/master/docs/YouB%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%84%9C%EB%B2%84%20%EC%82%AC%EC%9A%A9%EB%B2%95.docx
