@@ -41,8 +41,10 @@ C. 직접 만든 모델을 테스트
 	학번 : 20152538
 	역할 : 팀장, 관련 기술 조사, 문서작업, Object detection 기능 구현, front-end
 	이메일 : dlacksdn352@gmail.com
+### 4. 프로젝트 영상
+[시연동영상](https://youtu.be/IG6UuORXLVk)
 
-## 4. 사용법
+## 5. 사용법
 
 사용자 : (https://juwancapstone.com) 
 
