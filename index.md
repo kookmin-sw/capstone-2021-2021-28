@@ -44,11 +44,8 @@ C. 직접 만든 모델을 테스트
 
 ## 4. 사용법
 
-추후 공지 예정
+사용자 : (https://juwancapstone.com) 
 
-## 5. 기타
-
-추후 추가 예정
-
+운영자 : https://github.com/kookmin-sw/capstone-2021-28/blob/master/docs/YouB%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%84%9C%EB%B2%84%20%EC%82%AC%EC%9A%A9%EB%B2%95.docx
 
 
